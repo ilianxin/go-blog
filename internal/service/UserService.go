@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/dgrijalvajwt-go"
 	"github.com/gin-gonic/gin"
 	"go-blog/config"
 	"go-blog/internal/model"
@@ -11,44 +10,44 @@ import (
 	"time"
 )
 
-func Register(c *gin.Context, db *gorm.DB) {
+func Register(c *gin.Context) {
 	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		RespondError(c, "参数错误: "+err.Error())
 		return
 	}
 	// 加密密码
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		RespondError(c, "Failed to hash password")
 		return
 	}
 	user.Password = string(hashedPassword)
 
-	if err := db.Create(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+	if err := db.GetDB().Create(&user).Error; err != nil {
+		RespondError(c, "Failed to create user")
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
 }
 
-func Login(c *gin.Context, db *gorm.DB) {
+func Login(c *gin.Context) {
 	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		RespondError(c, "参数错误: "+err.Error())
 		return
 	}
 
 	var storedUser model.User
-	if err := db.Where("username = ?", user.Username).First(&storedUser).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+	if err := db.GetDB().Where("username = ?", user.Username).First(&storedUser).Error; err != nil {
+		RespondError(c, "Invalid username or password")
 		return
 	}
 
 	// 验证密码
 	if err := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(user.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		RespondError(c, "Invalid username or password")
 		return
 	}
 
@@ -61,7 +60,7 @@ func Login(c *gin.Context, db *gorm.DB) {
 
 	tokenString, err := token.SignedString([]byte(config.JWT_SECRET))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		RespondError(c, "Failed to generate token")
 		return
 	}
 
