@@ -18,7 +18,7 @@ func getComments(c *gin.Context) {
 		return
 	}
 
-	if err := db.getDB().Where("post_id = ?", postID).Find(&comments).Error; err != nil {
+	if err := db.GetDB().Where("post_id = ?", postID).Find(&comments).Error; err != nil {
 		RespondError(c, "内部错误")
 		return
 	}
@@ -42,7 +42,7 @@ func createComment(c *gin.Context) {
 
 	req.UserID = userID.(uint)
 
-	if err := db.getDB().Create(&req).Error; err != nil {
+	if err := db.GetDB().Create(&req).Error; err != nil {
 		RespondError(c, "内部错误")
 		return
 	}
