@@ -29,6 +29,11 @@ func JWTAuthMiddleware(secret string) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			c.Set("claims", claims)
+		}
+
 		c.Next()
 	}
 }
