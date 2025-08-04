@@ -12,7 +12,7 @@ type CreatePostRequest struct {
 	Content string `json:"content" binding:"required"`
 }
 
-func createPost(c *gin.Context, db *gorm.DB) (uint, error) {
+func createPost(c *gin.Context, db *gorm.DB) {
 	// 这里应该调用数据库操作来创建文章
 	// 假设我们使用 GORM 进行数据库操作
 
@@ -20,12 +20,13 @@ func createPost(c *gin.Context, db *gorm.DB) (uint, error) {
 
 	if !exists {
 		RespondError(c, "User not authenticated")
+		return
 	}
 
 	var req CreatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		RespondError(c, "参数错误")
-		return 0, err
+		return
 	}
 
 	post := model.Post{
@@ -36,10 +37,9 @@ func createPost(c *gin.Context, db *gorm.DB) (uint, error) {
 
 	if err := db.Create(&post).Error; err != nil {
 		RespondError(c, "内部错误")
-		return 0, err
+		return
 	}
 
-	return post.ID, nil
 }
 
 func readPost(c *gin.Context, db *gorm.DB) {
@@ -47,8 +47,8 @@ func readPost(c *gin.Context, db *gorm.DB) {
 	postID, postExists := c.Get("postID")
 	userID, userExists := c.Get("userID")
 
-	if !userExists && !postExists {
-		RespondError(c, "用户未认证或文章ID无效")
+	if !userExists {
+		RespondError(c, "用户未认证")
 		return
 	}
 
@@ -61,6 +61,8 @@ func readPost(c *gin.Context, db *gorm.DB) {
 		}
 
 		c.JSON(http.StatusOK, post)
+
+		return
 	}
 
 	if userExists {
@@ -111,7 +113,7 @@ func updatePost(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	c.JSON(http.StatusOK, post)
+	RespondSuccess(c, post)
 }
 
 func deletePost(c *gin.Context, db *gorm.DB) {
@@ -142,5 +144,5 @@ func deletePost(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "文章已删除"})
+	RespondSuccess(c, "文章已删除")
 }
