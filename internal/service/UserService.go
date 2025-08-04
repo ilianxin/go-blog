@@ -2,7 +2,9 @@ package service
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 	"go-blog/config"
+	"go-blog/internal/db"
 	"go-blog/internal/model"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -29,7 +31,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
+	RespondSuccess(c, "User registered successfully")
 }
 
 func Login(c *gin.Context) {
