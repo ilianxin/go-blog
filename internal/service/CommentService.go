@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-blog/internal/db"
 	"go-blog/internal/model"
 	"gorm.io/gorm"
 	"net/http"
