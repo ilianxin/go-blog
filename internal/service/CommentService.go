@@ -5,43 +5,45 @@ import (
 	"go-blog/internal/db"
 	"go-blog/internal/model"
 	"gorm.io/gorm"
+	"net/http"
 )
 
-func getComments(c *gin.Context, db *gorm.DB) {
+func getComments(c *gin.Context) {
 	var comments []*model.Comment
 
 	postID, postExists := c.Get("postID")
 
 	if !postExists {
-		c.JSON(400, gin.H{"error": "文章ID无效"})
+		RespondError(c, "文章ID无效")
 		return
 	}
 
-	if err := db.Where("post_id = ?", postID).Find(&comments).Error; err != nil {
-		return nil, err
+	if err := db.getDB().Where("post_id = ?", postID).Find(&comments).Error; err != nil {
+		RespondError(c, "内部错误")
+		return
 	}
 
 	c.JSON(200, comments)
 }
 
-func createComment(c *gin.Context, db *gorm.DB) {
+func createComment(c *gin.Context) {
 	var req model.Comment
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": "参数错误"})
+		RespondError(c, "参数错误")
 		return
 	}
 
 	userID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(401, gin.H{"error": "用户未认证"})
+		RespondError(c, "用户未认证")
 		return
 	}
 
 	req.UserID = userID.(uint)
 
-	if err := db.Create(&req).Error; err != nil {
-		c.JSON(500, gin.H{"error": "内部错误"})
+	if err := db.getDB().Create(&req).Error; err != nil {
+		RespondError(c, "内部错误")
 		return
 	}
 
