@@ -12,6 +12,8 @@ func InitDB() {
 	user := "rwuser"
 	pass := "Rwpass@123"
 	dsn := user + ":" + pass + "@tcp(47.111.78.104:3306)/go?charset=utf8mb4&parseTime=True&loc=Local"
+
+	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
