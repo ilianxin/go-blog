@@ -1,10 +1,9 @@
 package service
 
 import (
-	"fmt"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalvajwt-go"
 	"github.com/gin-gonic/gin"
-	"go-blog/internal/config"
+	"go-blog/config"
 	"go-blog/internal/model"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -60,7 +59,7 @@ func Login(c *gin.Context, db *gorm.DB) {
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	tokenString, err := token.SignedString([]byte(config.secretKey))
+	tokenString, err := token.SignedString([]byte(config.JWT_SECRET))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
