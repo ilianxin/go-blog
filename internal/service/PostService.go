@@ -43,6 +43,7 @@ func createPost(c *gin.Context, db *gorm.DB) (uint, error) {
 }
 
 func readPost(c *gin.Context, db *gorm.DB) {
+
 	postID, postExists := c.Get("postID")
 
 	userID, userExists := c.Get("userID")
