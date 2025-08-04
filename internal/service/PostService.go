@@ -19,12 +19,12 @@ func createPost(c *gin.Context, db *gorm.DB) (uint, error) {
 	userID, exists := c.Get("userID")
 
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		RespondError(c, "User not authenticated")
 	}
 
 	var req CreatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": "参数错误"})
+		RespondError(c, "参数错误")
 		return 0, err
 	}
 
@@ -35,7 +35,7 @@ func createPost(c *gin.Context, db *gorm.DB) (uint, error) {
 	}
 
 	if err := db.Create(&post).Error; err != nil {
-		c.JSON(500, gin.H{"error": "内部错误"})
+		RespondError(c, "内部错误")
 		return 0, err
 	}
 
@@ -45,11 +45,10 @@ func createPost(c *gin.Context, db *gorm.DB) (uint, error) {
 func readPost(c *gin.Context, db *gorm.DB) {
 
 	postID, postExists := c.Get("postID")
-
 	userID, userExists := c.Get("userID")
 
 	if !userExists && !postExists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "用户未认证或文章ID无效"})
+		RespondError(c, "用户未认证或文章ID无效")
 		return
 	}
 
@@ -57,7 +56,7 @@ func readPost(c *gin.Context, db *gorm.DB) {
 		var post model.Post
 
 		if err := db.First(&post, postID).Error; err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "文章未找到"})
+			RespondError(c, "文章未找到")
 			return
 		}
 
@@ -67,7 +66,7 @@ func readPost(c *gin.Context, db *gorm.DB) {
 	if userExists {
 		var posts []model.Post
 		if err := db.Where("user_id = ?", userID).Find(&posts).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "获取文章失败"})
+			RespondError(c, "获取文章失败")
 			return
 		}
 		c.JSON(http.StatusOK, posts)
@@ -81,25 +80,25 @@ func updatePost(c *gin.Context, db *gorm.DB) {
 	userId, userExists := c.Get("userID")
 
 	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "文章ID无效"})
+		RespondError(c, "文章ID无效")
 		return
 	}
 
 	var req CreatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误"})
+		RespondError(c, "参数错误")
 		return
 	}
 
 	var post model.Post
 	if err := db.First(&post, postID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "文章未找到"})
+		RespondError(c, "文章未找到")
 		return
 	}
 
 	if userExists {
 		if post.UserID != userId.(uint) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "无权更新此文章"})
+			RespondError(c, "无权更新此文章")
 			return
 		}
 	}
@@ -108,7 +107,7 @@ func updatePost(c *gin.Context, db *gorm.DB) {
 	post.Content = req.Content
 
 	if err := db.Save(&post).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新文章失败"})
+		RespondError(c, "更新文章失败")
 		return
 	}
 
@@ -121,25 +120,25 @@ func deletePost(c *gin.Context, db *gorm.DB) {
 	userId, userExists := c.Get("userID")
 
 	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "文章ID无效"})
+		RespondError(c, "文章ID无效")
 		return
 	}
 
 	var post model.Post
 	if err := db.First(&post, postID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "文章未找到"})
+		RespondError(c, "文章未找到")
 		return
 	}
 
 	if userExists {
 		if post.UserID != userId.(uint) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "无权删除此文章"})
+			RespondError(c, "无权删除此文章")
 			return
 		}
 	}
 
 	if err := db.Delete(&post).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除文章失败"})
+		RespondError(c, "删除文章失败")
 		return
 	}
 
