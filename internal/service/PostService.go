@@ -40,6 +40,8 @@ func CreatePost(c *gin.Context) {
 		return
 	}
 
+	RespondSuccess(c, post)
+
 }
 
 func ReadPost(c *gin.Context) {
@@ -77,14 +79,15 @@ func ReadPost(c *gin.Context) {
 }
 
 func UpdatePost(c *gin.Context) {
-	postID, exists := c.Get("postID")
 
-	userId, userExists := c.Get("userID")
+	postID := c.Param("id")
 
-	if !exists {
+	if postID == "" {
 		RespondError(c, "文章ID无效")
 		return
 	}
+
+	userId, userExists := c.Get("userID")
 
 	var req CreatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -117,11 +120,11 @@ func UpdatePost(c *gin.Context) {
 }
 
 func DeletePost(c *gin.Context) {
-	postID, exists := c.Get("postID")
+	postID := c.Param("postID")
 
 	userId, userExists := c.Get("userID")
 
-	if !exists {
+	if postID == "" {
 		RespondError(c, "文章ID无效")
 		return
 	}
