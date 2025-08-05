@@ -7,7 +7,6 @@ import (
 	"go-blog/internal/db"
 	"go-blog/internal/model"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"net/http"
 	"time"
 )
