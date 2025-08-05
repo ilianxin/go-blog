@@ -19,3 +19,23 @@ go get -u gorm.io/driver/mysql
 # 5. 实现文章的 CRUD 操作
 # 6. 实现评论功能
 # 7. 错误处理与日志记录
+# 8. 测试与部署
+# 9. API 文档
+## 9.1 Register
+![img.png](images/img.png)
+
+## 9.2 Login
+![img_1.png](images/img_1.png)
+
+## 9.3 Create Article
+![img_2.png](images/img_2.png)
+## 9.4 Get Article
+![img_3.png](images/img_3.png)
+## 9.5 Update Article
+![img_4.png](images/img_4.png)
+## 9.6 Delete Article
+![img_5.png](images/img_5.png)
+## 9.7 Create Comment
+![img_6.png](images/img_6.png)
+## 9.8 Get Comments
+![img_7.png](images/img_7.png)
