@@ -17,3 +17,7 @@ func RespondError(c *gin.Context, msg string) {
 	logrus.Warn(msg)
 	c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 }
+
+func RespondSuccess(c *gin.Context, data interface{}) {
+	c.JSON(http.StatusOK, gin.H{"data": data})
+}
