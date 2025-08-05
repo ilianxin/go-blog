@@ -4,14 +4,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-blog/internal/db"
 	"go-blog/internal/model"
+	"strconv"
 )
+
+type CreateCommentRequest struct {
+	Content string `json:"content" binding:"required"`
+}
 
 func GetComments(c *gin.Context) {
 	var comments []*model.Comment
 
-	postID, postExists := c.Get("postID")
+	postID := c.Param("id")
 
-	if !postExists {
+	if postID == "" {
 		RespondError(c, "文章ID无效")
 		return
 	}
@@ -25,7 +30,16 @@ func GetComments(c *gin.Context) {
 }
 
 func CreateComment(c *gin.Context) {
-	var req model.Comment
+
+	idStr := c.Param("id")
+	postID64, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		RespondError(c, "文章ID无效")
+		return
+	}
+	postID := uint(postID64)
+
+	var req CreateCommentRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		RespondError(c, "参数错误")
@@ -38,12 +52,16 @@ func CreateComment(c *gin.Context) {
 		return
 	}
 
-	req.UserID = userID.(uint)
+	comment := model.Comment{
+		Content: req.Content,
+		UserID:  userID.(uint),
+		PostID:  postID,
+	}
 
-	if err := db.GetDB().Create(&req).Error; err != nil {
+	if err := db.GetDB().Create(&comment).Error; err != nil {
 		RespondError(c, "内部错误")
 		return
 	}
 
-	RespondSuccess(c, "评论创建成功")
+	RespondSuccess(c, comment)
 }
