@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-blog/internal/db"
 	"go-blog/internal/model"
-	"gorm.io/gorm"
 	"net/http"
 )
 
@@ -12,7 +12,7 @@ type CreatePostRequest struct {
 	Content string `json:"content" binding:"required"`
 }
 
-func createPost(c *gin.Context, db *gorm.DB) {
+func CreatePost(c *gin.Context) {
 	// 这里应该调用数据库操作来创建文章
 	// 假设我们使用 GORM 进行数据库操作
 
@@ -35,14 +35,14 @@ func createPost(c *gin.Context, db *gorm.DB) {
 		UserID:  userID.(uint), // 假设 userID 是 uint 类型
 	}
 
-	if err := db.Create(&post).Error; err != nil {
+	if err := db.GetDB().Create(&post).Error; err != nil {
 		RespondError(c, "内部错误")
 		return
 	}
 
 }
 
-func readPost(c *gin.Context, db *gorm.DB) {
+func ReadPost(c *gin.Context) {
 
 	postID, postExists := c.Get("postID")
 	userID, userExists := c.Get("userID")
@@ -55,7 +55,7 @@ func readPost(c *gin.Context, db *gorm.DB) {
 	if postExists {
 		var post model.Post
 
-		if err := db.First(&post, postID).Error; err != nil {
+		if err := db.GetDB().First(&post, postID).Error; err != nil {
 			RespondError(c, "文章未找到")
 			return
 		}
@@ -67,7 +67,7 @@ func readPost(c *gin.Context, db *gorm.DB) {
 
 	if userExists {
 		var posts []model.Post
-		if err := db.Where("user_id = ?", userID).Find(&posts).Error; err != nil {
+		if err := db.GetDB().Where("user_id = ?", userID).Find(&posts).Error; err != nil {
 			RespondError(c, "获取文章失败")
 			return
 		}
@@ -76,7 +76,7 @@ func readPost(c *gin.Context, db *gorm.DB) {
 
 }
 
-func updatePost(c *gin.Context, db *gorm.DB) {
+func UpdatePost(c *gin.Context) {
 	postID, exists := c.Get("postID")
 
 	userId, userExists := c.Get("userID")
@@ -93,7 +93,7 @@ func updatePost(c *gin.Context, db *gorm.DB) {
 	}
 
 	var post model.Post
-	if err := db.First(&post, postID).Error; err != nil {
+	if err := db.GetDB().First(&post, postID).Error; err != nil {
 		RespondError(c, "文章未找到")
 		return
 	}
@@ -108,7 +108,7 @@ func updatePost(c *gin.Context, db *gorm.DB) {
 	post.Title = req.Title
 	post.Content = req.Content
 
-	if err := db.Save(&post).Error; err != nil {
+	if err := db.GetDB().Save(&post).Error; err != nil {
 		RespondError(c, "更新文章失败")
 		return
 	}
@@ -116,7 +116,7 @@ func updatePost(c *gin.Context, db *gorm.DB) {
 	RespondSuccess(c, post)
 }
 
-func deletePost(c *gin.Context, db *gorm.DB) {
+func DeletePost(c *gin.Context) {
 	postID, exists := c.Get("postID")
 
 	userId, userExists := c.Get("userID")
@@ -127,7 +127,7 @@ func deletePost(c *gin.Context, db *gorm.DB) {
 	}
 
 	var post model.Post
-	if err := db.First(&post, postID).Error; err != nil {
+	if err := db.GetDB().First(&post, postID).Error; err != nil {
 		RespondError(c, "文章未找到")
 		return
 	}
@@ -139,7 +139,7 @@ func deletePost(c *gin.Context, db *gorm.DB) {
 		}
 	}
 
-	if err := db.Delete(&post).Error; err != nil {
+	if err := db.GetDB().Delete(&post).Error; err != nil {
 		RespondError(c, "删除文章失败")
 		return
 	}
