@@ -2,12 +2,11 @@ package service
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-blog/internal/db"
 	"go-blog/internal/model"
-	"gorm.io/gorm"
-	"net/http"
 )
 
-func getComments(c *gin.Context) {
+func GetComments(c *gin.Context) {
 	var comments []*model.Comment
 
 	postID, postExists := c.Get("postID")
@@ -22,10 +21,10 @@ func getComments(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, comments)
+	RespondSuccess(c, comments)
 }
 
-func createComment(c *gin.Context) {
+func CreateComment(c *gin.Context) {
 	var req model.Comment
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -46,5 +45,5 @@ func createComment(c *gin.Context) {
 		return
 	}
 
-	c.JSON(201, gin.H{"message": "评论创建成功", "comment_id": req.ID})
+	RespondSuccess(c, "评论创建成功")
 }
