@@ -120,7 +120,7 @@ func UpdatePost(c *gin.Context) {
 }
 
 func DeletePost(c *gin.Context) {
-	postID := c.Param("postID")
+	postID := c.Param("id")
 
 	userId, userExists := c.Get("userID")
 
