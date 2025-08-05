@@ -34,6 +34,7 @@ func JWTAuthMiddleware(secret string) gin.HandlerFunc {
 			c.Set("claims", claims)
 		}
 
+		c.Set("userID", uint(token.Claims.(jwt.MapClaims)["id"].(float64)))
 		c.Next()
 	}
 }
